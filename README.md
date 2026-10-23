@@ -62,7 +62,6 @@ The output APK will be located in `app/build/outputs/apk/debug/`.
 
 ## Credits
 
-- **Web Toolkits**: [rawgame4.github.io](https://rawgame4.github.io), [raw13g.github.io](https://raw13g.github.io)
 - **HTTP Server**: [NanoHTTPD](https://github.com/NanoHttpd/nanohttpd)
 
 ## License

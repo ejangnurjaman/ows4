@@ -45,9 +45,8 @@ class MainActivity : AppCompatActivity() {
 
     // Official SHA-256 Hashes
     private val VALID_HASHES = mapOf(
-        "3024070420f67d102d886cc9e785e36b70144693e50ca9ddee35c8a6dfdc1185" to "ps4ows.zip",
-        "5ad8785f53a6f565fd70c14a0791cc34fdf7798e1633ae7b2a8b520740701c15" to "ps4ows.rawgame4.v1.zip",
-        "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b" to "ps4ows.raw13g.v1.zip"
+        "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b" to "ows4.rawgame4.v1.zip",
+        "5ad8785f53a6f565fd70c14a0791cc34fdf7798e1633ae7b2a8b520740701c15" to "ows4.rawgame4.v2.zip"
     )
 
     private lateinit var tvPort: TextView
@@ -66,8 +65,8 @@ class MainActivity : AppCompatActivity() {
         uri?.let { handleSelectedZip(it) }
     }
 
-    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
-        checkCustomFolderStatus()
+    private val customFolderPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
+        uri?.let { handleSelectedCustomFolder(it) }
     }
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -102,6 +101,10 @@ class MainActivity : AppCompatActivity() {
             zipPickerLauncher.launch("application/zip")
         }
 
+        findViewById<LinearLayout>(R.id.llCustomFolderPicker).setOnClickListener {
+            customFolderPickerLauncher.launch(null)
+        }
+
         btnStartStop.setOnClickListener {
             if (isServerRunning) stopServer() else startServer()
         }
@@ -126,7 +129,6 @@ class MainActivity : AppCompatActivity() {
                 selectedMethod = 1
                 layoutDefaultToolkit.visibility = View.GONE
                 layoutCustomMethod.visibility = View.VISIBLE
-                checkAndRequestStoragePermissions()
                 checkCustomFolderStatus()
             }
         }
@@ -141,12 +143,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkCustomFolderStatus() {
-        val customDir = File(Environment.getExternalStorageDirectory(), "ps4ows")
-        tvCustomPath.text = "Path: ${customDir.absolutePath}"
+        val customDir = File(filesDir, "custom")
         if (customDir.exists() && customDir.isDirectory) {
             val files = customDir.list()
             if (files != null && files.isNotEmpty()) {
                 val hasIndex = files.any { it.equals("index.html", ignoreCase = true) }
+                tvCustomPath.text = "Custom Folder Loaded"
                 if (hasIndex) {
                     tvCustomStatus.text = "Status: Ready (${files.size} items, index.html found)"
                     tvCustomStatus.setTextColor(Color.parseColor("#00FF00"))
@@ -155,44 +157,21 @@ class MainActivity : AppCompatActivity() {
                     tvCustomStatus.setTextColor(Color.parseColor("#FFE082"))
                 }
             } else {
+                tvCustomPath.text = "Custom Folder"
                 tvCustomStatus.text = "Status: Folder is empty"
                 tvCustomStatus.setTextColor(Color.parseColor("#FF5252"))
             }
         } else {
-            tvCustomStatus.text = "Status: Folder not found! Please create 'ps4ows' folder in internal storage."
-            tvCustomStatus.setTextColor(Color.parseColor("#FF5252"))
+            tvCustomPath.text = "Select ows4 folder"
+            tvCustomStatus.text = "Status: Not selected"
+            tvCustomStatus.setTextColor(Color.parseColor("#90CAF9"))
         }
     }
 
     private fun checkPermissions() {
-        val permissions = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        val toRequest = permissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (toRequest.isNotEmpty()) {
-            permissionLauncher.launch(toRequest.toTypedArray())
-        }
-    }
-
-    private fun checkAndRequestStoragePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                try {
-                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:$packageName"))
-                    startActivity(intent)
-                }
-            }
-        } else {
-            val hasRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            val hasWrite = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            if (!hasRead || !hasWrite) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 100)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
             }
         }
     }
@@ -214,9 +193,9 @@ class MainActivity : AppCompatActivity() {
             }
             rootDir = File(filesDir, "toolkit")
         } else {
-            val customDir = File(Environment.getExternalStorageDirectory(), "ps4ows")
+            val customDir = File(filesDir, "custom")
             if (!customDir.exists() || !customDir.isDirectory) {
-                showErrorDialog("Custom folder 'ps4ows' not found in internal storage (${customDir.absolutePath}). Please create it and add your web host files.")
+                showErrorDialog("Custom folder not loaded. Please select a valid folder containing your web host files.")
                 return
             }
             rootDir = customDir
@@ -295,6 +274,12 @@ class MainActivity : AppCompatActivity() {
                 return
             }
 
+            val finalToolkitName = if (fileHash == "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b") {
+                if (fileName?.contains("raw13g", ignoreCase = true) == true) "ows4.raw13g.v1.zip" else "ows4.rawgame4.v1.zip"
+            } else {
+                matchedToolkitName
+            }
+
             // 3. Hash is valid, proceed to extract
             tempFile.inputStream().use { input ->
                 extractZip(input)
@@ -302,8 +287,8 @@ class MainActivity : AppCompatActivity() {
             tempFile.delete()
             
             isToolkitReady = true
-            tvZipPath.text = "Verified: $matchedToolkitName"
-            Toast.makeText(this, "Toolkit ($matchedToolkitName) Verified Successfully", Toast.LENGTH_SHORT).show()
+            tvZipPath.text = "Verified: $finalToolkitName"
+            Toast.makeText(this, "Toolkit ($finalToolkitName) Verified Successfully", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
             showErrorDialog("Failed to process toolkit: ${e.message}")
@@ -326,11 +311,19 @@ class MainActivity : AppCompatActivity() {
         val toolkitDir = File(filesDir, "toolkit")
         if (toolkitDir.exists()) toolkitDir.deleteRecursively()
         toolkitDir.mkdirs()
+        val toolkitCanonicalPath = toolkitDir.canonicalPath + File.separator
 
         ZipInputStream(inputStream).use { zis ->
             var entry = zis.nextEntry
             while (entry != null) {
                 val newFile = File(toolkitDir, entry.name)
+                val canonicalDestinationPath = newFile.canonicalPath
+                if (!canonicalDestinationPath.startsWith(toolkitCanonicalPath)) {
+                    zis.closeEntry()
+                    entry = zis.nextEntry
+                    continue
+                }
+
                 if (entry.isDirectory) {
                     newFile.mkdirs()
                 } else {
@@ -342,6 +335,46 @@ class MainActivity : AppCompatActivity() {
                 zis.closeEntry()
                 entry = zis.nextEntry
             }
+        }
+    }
+
+    private fun handleSelectedCustomFolder(uri: Uri) {
+        try {
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            val targetDir = File(filesDir, "custom")
+            if (targetDir.exists()) targetDir.deleteRecursively()
+            targetDir.mkdirs()
+
+            val rootDoc = androidx.documentfile.provider.DocumentFile.fromTreeUri(this, uri)
+            if (rootDoc == null || !rootDoc.isDirectory) {
+                showErrorDialog("Invalid folder selected.")
+                return
+            }
+
+            fun copyRecursive(doc: androidx.documentfile.provider.DocumentFile, currentDest: File) {
+                for (file in doc.listFiles()) {
+                    if (file.isDirectory) {
+                        val subDest = File(currentDest, file.name ?: "sub")
+                        subDest.mkdirs()
+                        copyRecursive(file, subDest)
+                    } else if (file.isFile) {
+                        val destFile = File(currentDest, file.name ?: "file")
+                        contentResolver.openInputStream(file.uri)?.use { input ->
+                            FileOutputStream(destFile).use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    }
+                }
+            }
+
+            copyRecursive(rootDoc, targetDir)
+            checkCustomFolderStatus()
+            Toast.makeText(this, "Custom folder loaded successfully", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            showErrorDialog("Failed to load custom folder: ${e.message}")
         }
     }
 
@@ -360,16 +393,16 @@ class MainActivity : AppCompatActivity() {
         val message = """
             1. Prepare Connection: Turn off Mobile Data and external Wi-Fi.
             
-            2. Connect: Enable Mobile Hotspot and connect your PS4 to it.
+            2. Connect: Enable Mobile Hotspot and connect your target device to it.
             
             3. Select Method:
-               • Default Toolkit: Select an official supported ZIP file (ps4ows.zip, ps4ows.rawgame4.v1.zip, or ps4ows.raw13g.v1.zip). SHA-256 verification will run automatically.
-               • Custom: Create a folder named "ps4ows" in your internal storage (/sdcard/ps4ows) and place your web host files (index.html, etc.) inside it.
+               • Default Toolkit: Select an official supported ZIP file (ows4.rawgame4.v1.zip, ows4.rawgame4.v2.zip, or ows4.raw13g.v1.zip). SHA-256 verification will run automatically.
+               • Custom: Tap the folder picker to select any folder containing your web host files (index.html, etc.) from your device storage.
             
             4. Start Server: Tap the [Start Server] button.
             
-            5. Access on PS4:
-            ◦ Open the Web Browser on your PS4.
+            5. Access on Device:
+            ◦ Open the Web Browser on your device.
             ◦ Type in the URL provided by the app (e.g., http://192.168.x.x:8080).
         """.trimIndent()
         
@@ -382,11 +415,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAboutDialog() {
         val message = """
-            PS4 OWS (Offline Webkit Server)
+            OWS4 (Offline Webkit Server)
             Created by youtube.com/@truecarbide
             Powered by weebsu.com
             
-            v1.0.1
+            v1.0.2
         """.trimIndent()
 
         AlertDialog.Builder(this)
@@ -409,7 +442,7 @@ class MainActivity : AppCompatActivity() {
             val name = "Server Status"
             val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel("server_channel", name, importance).apply {
-                description = "Notifications for PS4 OWS Server status"
+                description = "Notifications for OWS4 Server status"
             }
             val notificationManager: NotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)

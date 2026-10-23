@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp"
-            android:text="PS4 OWS"
+            android:text="OWS4"
             android:textColor="#CCCCCC"
             android:textSize="28dp" />
 
@@ -183,7 +183,7 @@
                     android:id="@+id/tvZipPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Select ps4ows.zip / rawgame4 / raw13g"
+                    android:hint="Select ows4.rawgame4.v1.zip / v2 / raw13g"
                     android:textColor="#2196F3"
                     android:textColorHint="#2196F3"
                     android:textSize="14sp" />
@@ -209,9 +209,13 @@
                 android:textSize="14sp" />
 
             <LinearLayout
+                android:id="@+id/llCustomFolderPicker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_select_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:orientation="vertical"
                 android:padding="12dp">
 
@@ -219,8 +223,9 @@
                     android:id="@+id/tvCustomPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Path: /sdcard/ps4ows"
+                    android:hint="Select ows4 folder"
                     android:textColor="#2196F3"
+                    android:textColorHint="#2196F3"
                     android:textSize="14sp" />
 
                 <TextView
@@ -228,7 +233,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Status: Checking folder..."
+                    android:text="Status: Not selected"
                     android:textColor="#90CAF9"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -241,6 +246,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:padding="12dp"
+            android:textAlignment="center"
             android:text="Start Server"
             android:textSize="16sp"
             android:background="@drawable/bg_start_btn"
@@ -336,7 +342,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PS4 OWS v1.0.1 is created by youtube.com/@truecarbide"
+                android:text="OWS4 v1.0.2 is created by youtube.com/@truecarbide"
                 android:textColor="#777777"
                 android:textSize="11sp" />
 

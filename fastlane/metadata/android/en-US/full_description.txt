@@ -1,8 +1,10 @@
-PS4 OWS (Offline Webkit Server) is a lightweight application that turns your Android device into a local HTTP server. It allows users to host their own web-based toolkits (provided via ZIP) locally, eliminating the need for an internet connection.
+OWS4 (Offline Webkit Server) is a lightweight application that turns your Android device into a local HTTP server. It allows users to host web-based toolkits locally via verified ZIP packages or custom folder selection, eliminating the need for an internet connection and dangerous storage permissions.
 
 Features:
 * Local HTTP Server using NanoHTTPD.
 * Completely offline: works via Hotspot or local Wi-Fi.
-* Toolkit support: Load your own files via ZIP.
+* Dual Hosting Methods:
+  - Default Toolkit: Load and verify official supported ZIP packages (`ows4.rawgame4.v1.zip`, `ows4.rawgame4.v2.zip`, `ows4.raw13g.v1.zip`) with SHA-256 integrity check.
+  - Custom Method: Select any custom folder via system folder picker (Storage Access Framework) containing your web host files.
 * Real-time IP and status monitoring.
 * No trackers, no ads, no analytics.

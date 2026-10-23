@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PS4 OWS"
+rootProject.name = "OWS4"
 include(":app")

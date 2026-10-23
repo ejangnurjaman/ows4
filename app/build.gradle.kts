@@ -9,11 +9,11 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.truecarbide.ps4ows"
+        applicationId = "com.truecarbide.ows4"
         minSdk = 24
         targetSdk = 37
-        versionCode = 3
-        versionName = "1.0.1"
+        versionCode = 4
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.nanohttpd)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("androidx.documentfile:documentfile:1.0.1")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

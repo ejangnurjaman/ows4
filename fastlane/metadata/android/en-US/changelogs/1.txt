@@ -1,5 +1,5 @@
-Initial release of PS4 OWS (Offline Webkit Server).
-- Specialized HTTP server for PS4 offline environments.
+Initial release of OWS4 (Offline Webkit Server).
+- Specialized HTTP server for offline environments.
 - Built-in toolkit integrity verification via SHA-256.
 - Support for custom toolkit ZIP extraction.
 - Privacy-focused: no ads, no trackers, no internet required.

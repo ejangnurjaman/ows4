@@ -8,10 +8,22 @@ class Ps4HttpServer(private val rootDir: File, port: Int) : NanoHTTPD(port) {
 
     override fun serve(session: IHTTPSession): Response {
         val uri = session.uri
-        
+
+        // Reject requests containing .. or NUL bytes to prevent path traversal
+        if (uri.contains("..") || uri.contains('\u0000')) {
+            return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Forbidden")
+        }
+
         // Default to index.html for root
         val relativePath = if (uri == "/" || uri.isEmpty()) "index.html" else uri.removePrefix("/")
-        val file = File(rootDir, relativePath)
+        
+        val rootCanonical = rootDir.canonicalFile
+        val file = File(rootCanonical, relativePath).canonicalFile
+
+        // Ensure the resolved file is strictly inside rootCanonical
+        if (!file.path.startsWith(rootCanonical.path + File.separator) && file != rootCanonical) {
+            return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Forbidden")
+        }
 
         if (file.exists() && file.isFile) {
             val mimeType = getMimeType(relativePath)

@@ -1,0 +1,5 @@
+Version 1.0.2 update of OWS4:
+- Security patches: Fixed unauthenticated path traversal vulnerability (CWE-22) in HTTP server and zip-slip during extraction.
+- Migrated custom storage folder selection to Storage Access Framework (SAF) folder picker, removing all dangerous storage permissions.
+- Updated supported official toolkit ZIPs.
+- Improved stability and security.

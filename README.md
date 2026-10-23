@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" width="100" alt="OWS4 Logo">
+</p>
+
 # OWS4 — Offline Webkit Server (v1.0.2)
 
 **OWS4** is a lightweight Android application designed to host web files locally from your device. It eliminates the need for an internet connection by turning your Android phone into a local HTTP server that your devices can access.

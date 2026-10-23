@@ -45,8 +45,9 @@ class MainActivity : AppCompatActivity() {
 
     // Official SHA-256 Hashes
     private val VALID_HASHES = mapOf(
-        "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b" to "ows4.rawgame4.v1.zip",
-        "5ad8785f53a6f565fd70c14a0791cc34fdf7798e1633ae7b2a8b520740701c15" to "ows4.rawgame4.v2.zip"
+        "3024070420f67d102d886cc9e785e36b70144693e50ca9ddee35c8a6dfdc1185" to "ows4.rawgame4.v1.zip",
+        "5ad8785f53a6f565fd70c14a0791cc34fdf7798e1633ae7b2a8b520740701c15" to "ows4.rawgame4.v2.zip",
+        "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b" to "ows4.raw13g.v1.zip"
     )
 
     private lateinit var tvPort: TextView
@@ -274,11 +275,7 @@ class MainActivity : AppCompatActivity() {
                 return
             }
 
-            val finalToolkitName = if (fileHash == "7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b") {
-                if (fileName?.contains("raw13g", ignoreCase = true) == true) "ows4.raw13g.v1.zip" else "ows4.rawgame4.v1.zip"
-            } else {
-                matchedToolkitName
-            }
+            val finalToolkitName = matchedToolkitName
 
             // 3. Hash is valid, proceed to extract
             tempFile.inputStream().use { input ->

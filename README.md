@@ -30,7 +30,7 @@
 2. **Connect**: Enable your Mobile Hotspot and connect your target device to it, or ensure both devices are on the same local network.
 3. **Select Method & Source**:
    - **Method 1 (Default Toolkit)**: Select one of the supported official ZIP files. Automatic SHA-256 integrity check will verify the file:
-     - `ows4.rawgame4.v1.zip` (Checksum: `7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b`)
+     - `ows4.rawgame4.v1.zip` (Checksum: `3024070420f67d102d886cc9e785e36b70144693e50ca9ddee35c8a6dfdc1185`)
      - `ows4.rawgame4.v2.zip` (Checksum: `5ad8785f53a6f565fd70c14a0791cc34fdf7798e1633ae7b2a8b520740701c15`)
      - `ows4.raw13g.v1.zip` (Checksum: `7b000d912db10ed2cd638c30a9ac794a2d0e87394090396a1305c67e1c8fc16b`)
      - [Download Toolkit](https://weebsu.com/p/ows4.html)
